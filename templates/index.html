@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        section{
+            height: 100vh;
+            padding: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            overflow-x: hidden;
+            font-family: sans-serif;
+            background-color: rgb(158, 215, 134);
+        }
+        ul{
+            /* background-color: rgb(224, 224, 224); */
+            width: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            height: 70%;
+            margin-top: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        ul li {
+            background-color: rgb(201, 250, 158);
+            list-style: none;
+            width: 20%;
+            height: 30%;
+            padding: 20px 15px;
+            border-radius: 12px;
+            line-height: 25px;
+        }
+        ul li h1{
+            text-transform: capitalize;
+            margin-bottom: 10px;
+        }
+        .search{
+            background-color: rgb(247, 247, 247);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-top: 10px;
+            box-shadow: 5px 5px 50px rgb(229, 255, 197);
+        } 
+        .search input{
+            width: 400px;
+            padding: 12px 15px;
+            font-size: 20px;
+            font-weight: 400;
+            border: none;
+            background-color: transparent;
+            outline: none;
+        }
+        .search button{
+            width: 100px;
+            padding: 14px 12px;
+            border-radius: 50px;
+            border: none;
+            background-color: rgb(96, 96, 96);
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .search button:hover{
+            background-color: rgb(255, 72, 72);
+        }
+        #title{
+            margin: 20px;
+            font-weight: bold;
+            font-size: 70px;
+
+        }
+    </style>
+</head>
+<body>
+
+<section>
+    <h1 id="title">Product List</h1>
+
+    <div class="search">
+        <input type="text" id="searchInput" placeholder="Search by name">
+        <button onclick="searchProducts()">Search</button>
+    </div>
+
+    <ul id="productList"></ul>
+
+</section>
+
+<script>
+
+function displayAllProducts() {
+    $.ajax({
+        url: '/api/products/',
+        type: 'GET',
+        success: function(data) {
+            displayProducts(data);
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+
+function searchProducts() {
+    var searchTerm = $('#searchInput').val();
+    
+    $.ajax({
+        url: '/api/products/?name=' + searchTerm,
+        type: 'GET',
+        success: function(data) {
+            if (data.length > 0) {
+                displayProducts(data);
+            } else {
+                displayNotFoundMessage();
+            }
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+function displayProducts(products) {
+    var productList = $('#productList');
+    productList.empty();
+
+    for (var i = 0; i < products.length; i++) {
+        var product = products[i];
+        productList.append(
+            '<li>' 
+                + '<h1>'+product.name+'</h1>' 
+                + '<p>'+'Deskripsi : '+product.description+'</p> '
+                + '<p>'+'Quantity : '+ product.quantity+'</p> '
+                + '<p>'+'Manufacturer : '+product.manufacturer+'</p> '
+                + '<p>'+'Category : '+product.category+'</p> '+            
+            '</li>');
+    }
+}
+
+
+function displayNotFoundMessage() {
+    var productList = $('#productList');
+    productList.empty();
+    productList.append('<li>Product not found</li>');
+}
+
+$(document).ready(function() {
+    displayAllProducts();
+});
+</script>
+
+</body>
+</html>
